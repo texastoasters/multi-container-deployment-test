@@ -1,0 +1,20 @@
+language: generic
+services:
+    - docker
+
+before_install:
+    - docker build -t texastoast78/obscene-fib-test -f ./client/Dockerfile.dev ./client
+script:
+    - docker run -e CI=true texastoast78/obscene-fib-test npm test
+after_success:
+    - docker build -t texastoast78/obscene-fib-client -f ./client/Dockerfile ./client
+    - docker build -t texastoast78/obscene-fib-router -f ./router/Dockerfile ./router
+    - docker build -t texastoast78/obscene-fib-server -f ./server/Dockerfile ./server
+    - docker build -t texastoast78/obscene-fib-worker -f ./worker/Dockerfile ./worker
+    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+    - docker push texastoast78/obscene-fib-client
+    - docker push texastoast78/obscene-fib-router
+    - docker push texastoast78/obscene-fib-server
+    - docker push texastoast78/obscene-fib-worker
+    
+    
